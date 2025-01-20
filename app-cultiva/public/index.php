@@ -1,10 +1,14 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+header("Access-Control-Allow-Origin: *"); // Permitir solicitudes desde tu frontend
+header("Access-Control-Allow-Headers: Authorization, Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Credentials: true"); // Si necesitas enviar cookies o autenticación
+
 
 $uri = str_replace('/public', '', $_SERVER['REQUEST_URI']);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Ruta base
 if ($uri === '/' || $uri === '/productos') {
     require_once __DIR__ . '/../controllers/products.php';
     
@@ -28,20 +32,18 @@ if ($uri === '/' || $uri === '/productos') {
 } elseif ($uri === '/terrenos') {
     require_once __DIR__ . '/../controllers/terrenos.php';
 
-    // Obtener el header Authorization de forma segura
     $headers = getallheaders();
     if (isset($headers['Authorization'])) {
         $authHeader = $headers['Authorization'];
-        $token = str_replace('Bearer ', '', $authHeader); // Extraer el token
+        $token = str_replace('Bearer ', '', $authHeader);
 
-        // Decodificar el token
         try {
-            $decoded = json_decode(base64_decode($token), true); // Decodificar Base64 a JSON
+            $decoded = json_decode(base64_decode($token), true);
             if (!$decoded || !isset($decoded['id'])) {
                 throw new Exception('Token inválido');
             }
 
-            $usuarioId = $decoded['id']; // Usuario autenticado
+            $usuarioId = $decoded['id'];
         } catch (Exception $e) {
             http_response_code(401);
             echo json_encode(['error' => 'Token no válido o mal formado']);
@@ -53,30 +55,27 @@ if ($uri === '/' || $uri === '/productos') {
         exit;
     }
 
-    // Manejar métodos GET y POST para terrenos
     if ($method === 'GET') {
-        listarTerrenos($usuarioId); // Listar terrenos para el usuario autenticado
+        listarTerrenos($usuarioId);
     } elseif ($method === 'POST') {
-        crearTerreno($usuarioId); // Crear un terreno asociado al usuario
+        crearTerreno($usuarioId);
     }
 } elseif (preg_match('/^\/terrenos\/(\d+)$/', $uri, $matches)) {
     require_once __DIR__ . '/../controllers/terrenos.php';
     $id = $matches[1];
 
-    // Obtener el header Authorization de forma segura
     $headers = getallheaders();
     if (isset($headers['Authorization'])) {
         $authHeader = $headers['Authorization'];
-        $token = str_replace('Bearer ', '', $authHeader); // Extraer el token
+        $token = str_replace('Bearer ', '', $authHeader);
 
-        // Decodificar el token
         try {
-            $decoded = json_decode(base64_decode($token), true); // Decodificar Base64 a JSON
+            $decoded = json_decode(base64_decode($token), true);
             if (!$decoded || !isset($decoded['id'])) {
                 throw new Exception('Token inválido');
             }
 
-            $usuarioId = $decoded['id']; // Usuario autenticado
+            $usuarioId = $decoded['id'];
         } catch (Exception $e) {
             http_response_code(401);
             echo json_encode(['error' => 'Token no válido o mal formado']);
@@ -88,19 +87,18 @@ if ($uri === '/' || $uri === '/productos') {
         exit;
     }
 
-    // Manejar métodos PUT y DELETE para terrenos específicos
     if ($method === 'PUT') {
-        actualizarTerreno($id, $usuarioId); // Actualizar terreno
+        actualizarTerreno($id, $usuarioId);
     } elseif ($method === 'DELETE') {
-        eliminarTerreno($id, $usuarioId); // Eliminar terreno
+        eliminarTerreno($id, $usuarioId);
     }
-}elseif ($uri === '/usuarios/registro' && $method === 'POST') {
+} elseif ($uri === '/usuarios/registro' && $method === 'POST') {
     require_once __DIR__ . '/../controllers/usuarios.php';
     registrarUsuario();
 } elseif ($uri === '/usuarios/login' && $method === 'POST') {
     require_once __DIR__ . '/../controllers/usuarios.php';
     iniciarSesion();
-}else {
+} else {
     http_response_code(404);
     echo json_encode(['error' => 'Página no encontrada']);
 }
