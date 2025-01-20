@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /public/
+
+# Redirige solo si no es un archivo existente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirige a index.php para otras solicitudes
+RewriteRule ^(.*)$ index.php [QSA,L]

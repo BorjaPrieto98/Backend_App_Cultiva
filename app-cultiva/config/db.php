@@ -6,6 +6,7 @@ $pass = '';
 
 try{
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+    $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e){
     echo "Error de conexión: " . $e->getMessage();

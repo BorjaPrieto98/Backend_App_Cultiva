@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-$uri = $_SERVER['REQUEST_URI'];
+$uri = str_replace('/public', '', $_SERVER['REQUEST_URI']);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Ruta base
-if ($uri === '/public/' || $uri === '/public/productos') {
+if ($uri === '/' || $uri === '/productos') {
     require_once __DIR__ . '/../controllers/products.php';
     
     if ($method === 'GET') {
@@ -24,6 +24,14 @@ if ($uri === '/public/' || $uri === '/public/productos') {
     } else {
         http_response_code(405);
         echo json_encode(['error' => 'Método no permitido']);
+    }
+} elseif ($uri === '/terrenos') {
+    require_once __DIR__ . '/../controllers/terrenos.php';
+
+    if ($method === 'GET') {
+        listarTerrenos($_GET['usuario_id']); // Recibe usuario_id como parámetro
+    } elseif ($method === 'POST') {
+        crearTerreno();
     }
 } else {
     http_response_code(404);
